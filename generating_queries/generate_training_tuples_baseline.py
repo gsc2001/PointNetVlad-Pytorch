@@ -52,8 +52,8 @@ def check_in_test_set(northing, easting, points, x_width, y_width):
 
 def construct_query_dict(df_centroids, offset):
     tree = KDTree(df_centroids[['northing','easting']])
-    ind_nn = tree.query_radius(df_centroids[['northing','easting']],r=4)
-    ind_r = tree.query_radius(df_centroids[['northing','easting']], r=10)
+    ind_nn = tree.query_radius(df_centroids[['northing','easting']],r=10)
+    ind_r = tree.query_radius(df_centroids[['northing','easting']], r=50)
     queries = {}
     for i in range(len(ind_nn)):
         query = df_centroids.iloc[i]["file"]
