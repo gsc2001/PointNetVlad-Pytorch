@@ -82,10 +82,11 @@ for i, folder in enumerate(folders):
     print(df_locations['file'])
 
     for index, row in df_locations.iterrows():
-        if index >= int(0.8 * df_locations.shape[0]):
-            df_test = df_test.append(row, ignore_index=True)
-        else:
-            df_train = df_train.append(row, ignore_index=True)
+        if index % 3 == 0:
+            if index >= int(0.8 * df_locations.shape[0]):
+                df_test = df_test.append(row, ignore_index=True)
+            else:
+                df_train = df_train.append(row, ignore_index=True)
     
     train_queries.update(construct_query_dict(df_train, cnt_train))
     test_queries.update(construct_query_dict(df_test,cnt_test))
