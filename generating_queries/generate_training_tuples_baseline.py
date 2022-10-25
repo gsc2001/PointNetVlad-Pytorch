@@ -6,19 +6,24 @@ import numpy as np
 import pandas as pd
 from sklearn.neighbors import KDTree
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-base_path = cfg.DATASET_FOLDER
+import argparse
 
-runs_folder = "oxford/"
-filename = "pointcloud_locations_20m_10overlap.csv"
-pointcloud_fols = "/pointcloud_20m_10overlap/"
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dataset', required=True)
+    return parser.parse_args()
 
-all_folders = sorted(os.listdir(os.path.join(BASE_DIR,base_path,runs_folder)))
+args = get_args()
+runs_folder = os.path.abspath(args.dataset)
+filename = "pointclouds.csv"
+pointcloud_fols = "pointclouds/"
+
+all_folders = sorted(os.listdir(os.path.join(runs_folder)))
 
 folders = []
 
 # All runs are used for training (both full and partial)
-index_list = range(len(all_folders)-1)
+index_list = range(len(all_folders))
 print("Number of runs: "+str(len(index_list)))
 for index in index_list:
     folders.append(all_folders[index])
@@ -44,44 +49,53 @@ def check_in_test_set(northing, easting, points, x_width, y_width):
 ##########################################
 
 
-def construct_query_dict(df_centroids, filename):
+
+def construct_query_dict(df_centroids, offset):
     tree = KDTree(df_centroids[['northing','easting']])
-    ind_nn = tree.query_radius(df_centroids[['northing','easting']],r=10)
-    ind_r = tree.query_radius(df_centroids[['northing','easting']], r=50)
+    ind_nn = tree.query_radius(df_centroids[['northing','easting']],r=4)
+    ind_r = tree.query_radius(df_centroids[['northing','easting']], r=10)
     queries = {}
     for i in range(len(ind_nn)):
         query = df_centroids.iloc[i]["file"]
-        positives = np.setdiff1d(ind_nn[i],[i]).tolist()
-        negatives = np.setdiff1d(
-            df_centroids.index.values.tolist(),ind_r[i]).tolist()
+        positives = (np.setdiff1d(ind_nn[i],list(range(i,i+1))) + offset).tolist()
+        negatives = (np.setdiff1d(
+            df_centroids.index.values.tolist(),ind_r[i]) + offset).tolist()
         random.shuffle(negatives)
-        queries[i] = {"query":query,
+        queries[i + offset] = {"query":query,
                       "positives":positives,"negatives":negatives}
-
-    with open(filename, 'wb') as handle:
-        pickle.dump(queries, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-    print("Done ", filename)
+    return queries
 
 
 # Initialize pandas DataFrame
-df_train = pd.DataFrame(columns=['file','northing','easting'])
-df_test = pd.DataFrame(columns=['file','northing','easting'])
+train_queries = {}
+test_queries = {}
 
-for folder in folders:
-    df_locations = pd.read_csv(os.path.join(
-        base_path,runs_folder,folder,filename),sep=',')
-    df_locations['timestamp'] = runs_folder+folder + \
-        pointcloud_fols+df_locations['timestamp'].astype(str)+'.bin'
+cnt = 0
+for i, folder in enumerate(folders):
+    print('Seq:', i, folder)
+    df_train = pd.DataFrame(columns=['file','northing','easting'])
+    df_test = pd.DataFrame(columns=['file','northing','easting'])
+
+    df_locations = pd.read_csv(os.path.join(runs_folder,folder,filename),sep=',')
+    df_locations['timestamp'] = df_locations['timestamp'].apply(lambda ts: os.path.join(runs_folder, folder,pointcloud_fols,str(ts)+'.bin'))
     df_locations = df_locations.rename(columns={'timestamp':'file'})
+    print(df_locations['file'])
 
     for index, row in df_locations.iterrows():
-        if(check_in_test_set(row['northing'], row['easting'], p, x_width, y_width)):
+        if index >= int(0.8 * df_locations.shape[0]):
             df_test = df_test.append(row, ignore_index=True)
         else:
             df_train = df_train.append(row, ignore_index=True)
+    
+    train_queries.update(construct_query_dict(df_train, cnt))
+    test_queries.update(construct_query_dict(df_test,cnt))
+    cnt += df_locations.shape[0]
 
-print("Number of training submaps: "+str(len(df_train['file'])))
-print("Number of non-disjoint test submaps: "+str(len(df_test['file'])))
-construct_query_dict(df_train,"training_queries_baseline.pickle")
-construct_query_dict(df_test,"test_queries_baseline.pickle")
+    print("Number of training submaps: "+str(len(df_train['file'])))
+    print("Number of non-disjoint test submaps: "+str(len(df_test['file'])))
+
+with open('training_queries_baseline.pickle', 'wb') as f:
+    pickle.dump(train_queries, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+with open('test_queries_baseline.pickle', 'wb') as f:
+    pickle.dump(test_queries, f, protocol=pickle.HIGHEST_PROTOCOL)
