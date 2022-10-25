@@ -70,7 +70,7 @@ def construct_query_dict(df_centroids, offset):
 train_queries = {}
 test_queries = {}
 
-cnt = 0
+cnt_train, cnt_test = 0, 0
 for i, folder in enumerate(folders):
     print('Seq:', i, folder)
     df_train = pd.DataFrame(columns=['file','northing','easting'])
@@ -87,9 +87,10 @@ for i, folder in enumerate(folders):
         else:
             df_train = df_train.append(row, ignore_index=True)
     
-    train_queries.update(construct_query_dict(df_train, cnt))
-    test_queries.update(construct_query_dict(df_test,cnt))
-    cnt += df_locations.shape[0]
+    train_queries.update(construct_query_dict(df_train, cnt_train))
+    test_queries.update(construct_query_dict(df_test,cnt_test))
+    cnt_train += df_train.shape[0]
+    cnt_test += df_test.shape[0]
 
     print("Number of training submaps: "+str(len(df_train['file'])))
     print("Number of non-disjoint test submaps: "+str(len(df_test['file'])))

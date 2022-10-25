@@ -68,6 +68,7 @@ class NetVLADLoupe(nn.Module):
         vlad = vlad - a
 
         vlad = F.normalize(vlad, dim=1, p=2)
+        vlad = vlad.contiguous()
         vlad = vlad.view((-1, self.cluster_size * self.feature_size))
         vlad = F.normalize(vlad, dim=1, p=2)
 
