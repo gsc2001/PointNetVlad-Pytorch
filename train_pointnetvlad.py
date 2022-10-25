@@ -196,6 +196,23 @@ def train():
         train_one_epoch(model, optimizer, train_writer, loss_function, epoch)
 
         log_string('Not evaluating for now...')
+        try:
+            log_string('Saving model...')
+            if isinstance(model, nn.DataParallel):
+                model_to_save = model.module
+            else:
+                model_to_save = model
+            save_name = cfg.LOG_DIR + f'_epoch_{epoch}' + cfg.MODEL_FILENAME 
+            torch.save({
+                'epoch': epoch,
+                'iter': TOTAL_ITERATIONS,
+                'state_dict': model_to_save.state_dict(),
+                'optimizer': optimizer.state_dict(),
+            },save_name)
+            print("Model Saved As " + save_name)
+        except Exception as e:
+            print('error saving')
+
         # cfg.OUTPUT_FILE = cfg.RESULTS_FOLDER + 'results_' + str(epoch) + '.txt'
         # eval_recall = evaluate.evaluate_model(model)
         # log_string('EVAL RECALL: %s' % str(eval_recall))
@@ -325,12 +342,12 @@ def train_one_epoch(model, optimizer, train_writer, loss_function, epoch):
                 model, TRAINING_QUERIES)
             print("Updated cached feature vectors")
 
-        if (i % (6000 // cfg.BATCH_NUM_QUERIES) == 101):
+        if i % 100 == 0:
             if isinstance(model, nn.DataParallel):
                 model_to_save = model.module
             else:
                 model_to_save = model
-            save_name = cfg.LOG_DIR + f'_epoch_{epoch}' + cfg.MODEL_FILENAME 
+            save_name = cfg.LOG_DIR + f'_epoch_{epoch}_batch_{i}' + cfg.MODEL_FILENAME 
             torch.save({
                 'epoch': epoch,
                 'iter': TOTAL_ITERATIONS,
