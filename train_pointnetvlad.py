@@ -202,7 +202,7 @@ def train():
                 model_to_save = model.module
             else:
                 model_to_save = model
-            save_name = cfg.LOG_DIR + f'_epoch_{epoch}' + cfg.MODEL_FILENAME 
+            save_name = cfg.LOG_DIR + f'epoch_{epoch}_' + cfg.MODEL_FILENAME 
             torch.save({
                 'epoch': epoch,
                 'iter': TOTAL_ITERATIONS,
@@ -347,7 +347,7 @@ def train_one_epoch(model, optimizer, train_writer, loss_function, epoch):
                 model_to_save = model.module
             else:
                 model_to_save = model
-            save_name = cfg.LOG_DIR + f'_epoch_{epoch}_batch_{i}' + cfg.MODEL_FILENAME 
+            save_name = cfg.LOG_DIR + f'epoch_{epoch}_batch_{i}_' + cfg.MODEL_FILENAME 
             torch.save({
                 'epoch': epoch,
                 'iter': TOTAL_ITERATIONS,
