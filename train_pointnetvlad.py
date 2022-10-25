@@ -9,7 +9,7 @@ import numpy as np
 from sklearn.neighbors import KDTree, NearestNeighbors
 
 import config as cfg
-import evaluate
+# import evaluate
 import loss.pointnetvlad_loss as PNV_loss
 import models.PointNetVlad as PNV
 import torch
@@ -197,12 +197,12 @@ def train():
 
         train_one_epoch(model, optimizer, train_writer, loss_function, epoch)
 
-        log_string('EVALUATING...')
-        cfg.OUTPUT_FILE = cfg.RESULTS_FOLDER + 'results_' + str(epoch) + '.txt'
-        eval_recall = evaluate.evaluate_model(model)
-        log_string('EVAL RECALL: %s' % str(eval_recall))
+        log_string('Not evaluating for now...')
+        # cfg.OUTPUT_FILE = cfg.RESULTS_FOLDER + 'results_' + str(epoch) + '.txt'
+        # eval_recall = evaluate.evaluate_model(model)
+        # log_string('EVAL RECALL: %s' % str(eval_recall))
 
-        train_writer.add_scalar("Val Recall", eval_recall, epoch)
+        # train_writer.add_scalar("Val Recall", eval_recall, epoch)
 
 
 def train_one_epoch(model, optimizer, train_writer, loss_function, epoch):
@@ -332,7 +332,7 @@ def train_one_epoch(model, optimizer, train_writer, loss_function, epoch):
                 model_to_save = model.module
             else:
                 model_to_save = model
-            save_name = cfg.LOG_DIR + cfg.MODEL_FILENAME
+            save_name = cfg.LOG_DIR + f'_epoch_{epoch}' + cfg.MODEL_FILENAME 
             torch.save({
                 'epoch': epoch,
                 'iter': TOTAL_ITERATIONS,
