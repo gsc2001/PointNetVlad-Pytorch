@@ -217,7 +217,7 @@ def train_one_epoch(model, optimizer, train_writer, loss_function, epoch):
 
     # Shuffle train files
     train_file_idxs = np.arange(0, len(TRAINING_QUERIES.keys()))
-    print('Num batches:', train_file_idxs)
+    print('Num batches:', len(train_file_idxs) // cfg.BATCH_NUM_QUERIES)
     np.random.shuffle(train_file_idxs)
 
     for i in range(len(train_file_idxs)//cfg.BATCH_NUM_QUERIES):
