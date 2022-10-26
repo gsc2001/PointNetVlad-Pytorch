@@ -74,9 +74,7 @@ def main():
     }
 
     with open(os.path.join(args.output_dir, f'embeddings_{base_name}.pkl'), 'wb') as f:
-        pkl.dump(results, f, protocol=pkl.HIGHEST_PROTOCOL)
-
-
+        pkl.dump(results, f)
 
 
 
