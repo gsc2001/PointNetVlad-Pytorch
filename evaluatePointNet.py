@@ -47,10 +47,17 @@ def main():
 
     # for i_batch in range(int(np.ceil(len(db_idxs) / batch_size))):
         # file_indices = 
-    
-    for batch in tqdm(test_loader):
-        pcd = batch['pcd'].to(device)
-        print(pcd.size())
+    with torch.no_grad():
+        for batch in test_loader:
+            pcd = batch['pcd']
+            pcd = pcd.float()
+            pcd = pcd.unsqueeze(1).to(device)
+            out = model(pcd)
+            out = out.detach().cpu().numpy()
+            out = np.squeeze(out)
+            print(out.shape)
+
+
 
 
 
