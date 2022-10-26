@@ -1,7 +1,7 @@
 import argparse
 import os
-import re
 import numpy as np
+import pickle as pkl
 
 import torch
 from torch import nn
@@ -66,7 +66,16 @@ def main():
 
     base_name = os.path.basename(os.path.normpath(args.dataset_folder))
     print('saving latent_vectors with shape',latent_vectors.shape)
-    np.save(os.path.join(args.output_dir, f'latent_vectors_{base_name}.npy'), latent_vectors)
+    xy = dt.df_locations[['northing', 'easting']].to_numpy()
+    xyz = np.hstack([xy, np.zeros((xy.shape[0], 1))])
+    results = {
+        'embeddings': latent_vectors,
+        'positions': xyz
+    }
+
+    with open(os.path.join(os.output_dir, f'embeddings_{base_name}.pkl'), 'wb') as f:
+        pkl.dump(results, f, protocol=pkl.HIGHEST_PROTOCOL)
+
 
 
 
