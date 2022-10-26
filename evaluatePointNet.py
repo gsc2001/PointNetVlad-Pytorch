@@ -1,5 +1,6 @@
 import argparse
 import os
+import re
 import numpy as np
 
 import torch
@@ -9,6 +10,7 @@ import pandas as pd
 from gpr_dataset import GPRProcessed
 import models.PointNetVlad as PNV
 from tqdm import tqdm
+from sklearn.neighbors import KDTree
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -17,6 +19,7 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset_folder', required=True)
     parser.add_argument('--model-checkpoint', required=True)
+    parser.add_argument('--output-dir', required=True)
     parser.add_argument('--batch-size', type=int, default=20)
     return parser.parse_args()
 
@@ -47,6 +50,8 @@ def main():
 
     # for i_batch in range(int(np.ceil(len(db_idxs) / batch_size))):
         # file_indices = 
+    latent_vectors = []    
+
     with torch.no_grad():
         for batch in test_loader:
             pcd = batch['pcd']
@@ -55,11 +60,13 @@ def main():
             out = model(pcd)
             out = out.detach().cpu().numpy()
             out = np.squeeze(out)
-            print(out.shape)
+            latent_vectors.append(out)
+    
+    latent_vectors = np.vstack(latent_vectors)
 
-
-
-
+    base_name = os.path.basename(os.path.normpath(args.dataset_folder))
+    print('saving latent_vectors with shape',latent_vectors.shape)
+    np.save(f'latent_vectors_{base_name}.npy', latent_vectors)
 
 
 
