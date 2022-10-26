@@ -53,7 +53,7 @@ def main():
     latent_vectors = []    
 
     with torch.no_grad():
-        for batch in test_loader:
+        for batch in tqdm(test_loader):
             pcd = batch['pcd']
             pcd = pcd.float()
             pcd = pcd.unsqueeze(1).to(device)
