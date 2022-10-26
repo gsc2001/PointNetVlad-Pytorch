@@ -66,7 +66,7 @@ def main():
 
     base_name = os.path.basename(os.path.normpath(args.dataset_folder))
     print('saving latent_vectors with shape',latent_vectors.shape)
-    np.save(f'latent_vectors_{base_name}.npy', latent_vectors)
+    np.save(os.path.join(args.output_dir, f'latent_vectors_{base_name}.npy'), latent_vectors)
 
 
 
