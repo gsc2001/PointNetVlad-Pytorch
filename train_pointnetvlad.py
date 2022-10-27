@@ -11,7 +11,7 @@ from sklearn.neighbors import KDTree, NearestNeighbors
 import config as cfg
 # import evaluate
 import loss.pointnetvlad_loss as PNV_loss
-import models.PointNetVlad as PNV
+import models.PCAN as PNV
 import torch
 import torch.nn as nn
 from loading_pointclouds import *
@@ -87,8 +87,8 @@ cfg.TRIPLET_USE_BEST_POSITIVES = FLAGS.triplet_use_best_positives
 cfg.LOSS_LAZY = FLAGS.loss_not_lazy
 cfg.LOSS_IGNORE_ZERO_BATCH = FLAGS.loss_ignore_zero_batch
 
-cfg.TRAIN_FILE = 'generating_queries/training_queries_baseline.pickle'
-cfg.TEST_FILE = 'generating_queries/test_queries_baseline.pickle'
+cfg.TRAIN_FILE = 'generating_queries/training_queries_baseline_10_50.pickle'
+cfg.TEST_FILE = 'generating_queries/test_queries_baseline_10_50.pickle'
 
 cfg.LOG_DIR = FLAGS.log_dir
 if not os.path.exists(cfg.LOG_DIR):
