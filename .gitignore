@@ -3,3 +3,6 @@
 log*
 results*
 .ipynb_checkpoints/
+*.pickle
+*.out
+*.pkl

@@ -8,7 +8,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 import pandas as pd
 from gpr_dataset import GPRProcessed
-import models.PointNetVlad as PNV
+import models.PCAN as PNV
 from tqdm import tqdm
 from sklearn.neighbors import KDTree
 
@@ -21,6 +21,7 @@ def get_args():
     parser.add_argument('--model-checkpoint', required=True)
     parser.add_argument('--output-dir', required=True)
     parser.add_argument('--batch-size', type=int, default=20)
+    parser.add_argument('--angle', type=int, default=0)
     return parser.parse_args()
 
 def get_model(checkpoint_file:str):
@@ -44,7 +45,7 @@ def main():
     args = get_args()
     model = get_model(args.model_checkpoint)
 
-    dt = GPRProcessed(args.dataset_folder)
+    dt = GPRProcessed(args.dataset_folder, angle=args.angle)
 
     test_loader = DataLoader(dt,batch_size=args.batch_size,pin_memory=True,shuffle=False)
 
@@ -73,7 +74,11 @@ def main():
         'positions': xyz
     }
 
-    with open(os.path.join(args.output_dir, f'embeddings_{base_name}.pkl'), 'wb') as f:
+    file_name = f'embeddings_{base_name}'
+    if args.angle > 0:
+        file_name += f'_angle_{args.angle}'
+
+    with open(os.path.join(args.output_dir, f'{file_name}.pkl'), 'wb') as f:
         pkl.dump(results, f)
 
 

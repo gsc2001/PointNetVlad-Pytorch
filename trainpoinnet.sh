@@ -15,7 +15,7 @@ echo "Activating conda"
 source ~/miniconda3/bin/activate torch_pointnetvlad
 
 python --version
-python ~/RRC/collabslam/repos/PointNetVlad-Pytorch/train_pointnetvlad.py --batch_num_queries 2 --log_dir /scratch/gurkirat.singh/training_logs/pointnetvlad/logs/
+python ~/RRC/collabslam/repos/PointNetVlad-Pytorch/train_pointnetvlad.py --batch_num_queries 2 --log_dir /scratch/gurkirat.singh/training_logs/pointnetvlad/kitti/exp_6_nov/logs/
 
 echo "Done"
 
